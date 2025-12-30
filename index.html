@@ -1,26 +1,49 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>World Register</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 6px;
+      width: 80%;
+      max-width: 300px;
+    }
+    button {
+      background: #00ffcc;
+      border: none;
+      font-weight: bold;
+    }
+  </style>
 </head>
-<body style="background:#111;color:white;text-align:center;font-family:sans-serif">
+<body>
 
 <h1>🌍 World Register</h1>
 <p>Sign in daily to show you exist.</p>
 
-<input id="email" placeholder="Email"><br><br>
+<input id="email" placeholder="Email"><br>
 <input id="password" type="password" placeholder="Password"><br><br>
 
 <button onclick="register()">Register</button><br><br>
 <button onclick="login()">Login</button><br><br>
 <button onclick="checkIn()">Daily Check-In</button>
 
+<!-- Firebase scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
+// Your Firebase configuration
 firebase.initializeApp({
   apiKey: "AIzaSyCZDxxdy9UGYAA5lYFAthTrRA5VYJF65VY",
   authDomain: "world-register-77214.firebaseapp.com",
@@ -47,12 +70,26 @@ function login(){
 
 function checkIn(){
   const user = auth.currentUser;
-  if(!user){ alert("Login first"); return; }
-  const d = new Date().toISOString().slice(0,10);
-  db.ref("checkins/"+user.uid+"/"+d).set(true);
-  alert("Checked in today ✅");
+  if(!user){ 
+    alert("Login first"); 
+    return; 
+  }
+
+  const today = new Date().toISOString().slice(0,10);
+  const checkinRef = db.ref("checkins/" + user.uid + "/" + today);
+
+  checkinRef.once("value").then(snapshot => {
+    if(snapshot.exists()){
+      alert("You already checked in today ✅");
+    } else {
+      checkinRef.set(true);
+      alert("Checked in today ✅");
+    }
+  }).catch(error => {
+    alert("Error: " + error.message);
+  });
 }
 </script>
 
 </body>
-</html>
+  </html>
