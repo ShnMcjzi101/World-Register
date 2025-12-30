@@ -1,113 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>World Register — Daily Existence</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #6ec6ff, #b39ddb);
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      text-align: center;
-    }
-
-    .container {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 30px;
-      border-radius: 16px;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    h1 {
-      margin-bottom: 5px;
-    }
-
-    h2 {
-      font-weight: normal;
-      font-size: 16px;
-      margin-top: 0;
-      opacity: 0.9;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 15px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      border: none;
-      border-radius: 8px;
-      background: #ffffff;
-      color: #333;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #f0f0f0;
-    }
-
-    .message {
-      margin-top: 20px;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    .footer {
-      margin-top: 25px;
-      font-size: 12px;
-      opacity: 0.8;
-    }
-  </style>
+  <title>World Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
+<body style="background:#111;color:white;text-align:center;font-family:sans-serif">
 
-<body>
-  <div class="container">
-    <h1>🌍 World Register</h1>
-    <h2>Daily Existence</h2>
+<h1>🌍 World Register</h1>
+<p>Sign in daily to show you exist.</p>
 
-    <p><em>If you’re here, you existed today.</em></p>
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
 
-    <input type="text" id="username" placeholder="Choose a username">
+<button onclick="register()">Register</button><br><br>
+<button onclick="login()">Login</button><br><br>
+<button onclick="checkIn()">Daily Check-In</button>
 
-    <button onclick="checkIn()">I’m here today</button>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <div class="message" id="message"></div>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyCZDxxdy9UGYAA5lYFAthTrRA5VYJF65VY",
+  authDomain: "world-register-77214.firebaseapp.com",
+  projectId: "world-register-77214",
+  storageBucket: "world-register-77214.firebasestorage.app",
+  messagingSenderId: "1025940476888",
+  appId: "1:1025940476888:web:d2d2751e6a70e9028918ad"
+});
 
-    <div class="footer">
-      No real names • No tracking • Just humans showing up
-    </div>
-  </div>
+const auth = firebase.auth();
+const db = firebase.database();
 
-  <script>
-    function checkIn() {
-      const username = document.getElementById("username").value.trim();
-      const message = document.getElementById("message");
+function register(){
+  auth.createUserWithEmailAndPassword(email.value,password.value)
+  .then(()=>alert("Registered"))
+  .catch(e=>alert(e.message));
+}
 
-      if (!username) {
-        message.innerText = "Please enter a username.";
-        return;
-      }
+function login(){
+  auth.signInWithEmailAndPassword(email.value,password.value)
+  .then(()=>alert("Logged in"))
+  .catch(e=>alert(e.message));
+}
 
-      message.innerText = `Thanks, ${username}. You checked in today.`;
-    }
-  </script>
+function checkIn(){
+  const user = auth.currentUser;
+  if(!user){ alert("Login first"); return; }
+  const d = new Date().toISOString().slice(0,10);
+  db.ref("checkins/"+user.uid+"/"+d).set(true);
+  alert("Checked in today ✅");
+}
+</script>
+
 </body>
 </html>
